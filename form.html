@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl"> <!-- Set document direction to right-to-left -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>שליחת טופס בטוחה</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #ffffff;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden; /* Prevent any scrolling */
+        }
+        #contactForm {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%; /* Responsive width */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .formRow {
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            align-items: center;
+            flex-wrap: wrap; /* Ensure elements wrap on smaller screens */
+        }
+        .formRow label {
+            width: auto;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        .formRow input, .formRow select {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            margin-left: 10px;
+            min-width: calc(50% - 20px); /* Ensuring input fields do not become too small */
+        }
+        #submitButton {
+            padding: 12px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%; /* Full width button for better mobile appearance */
+            margin-top: 10px;
+        }
+        #submitButton:hover {
+            background-color: #218838;
+        }
+        @media (max-width: 600px) {
+            .formRow {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .formRow label, .formRow input, .formRow select {
+                width: 100%; /* Full width for better usability on small devices */
+                margin-left: 0; /* Adjust for mobile alignment */
+                margin-bottom: 5px; /* Added margin for better spacing in mobile view */
+            }
+        }
+    </style>
+</head>
+<body>
+    <form id="contactForm">
+        <div class="formRow">
+            <label for="name">שם:</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        <div class="formRow">
+            <label for="email">דוא"ל:</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        <div class="formRow">
+            <label for="selection">בחר אפשרות:</label>
+            <select id="selection" name="selection" required>
+                <option value="">בחר...</option>
+                <option value="energy_storage">אגירת אנרגיה</option>
+                <option value="solar_facility">הקמת מתקן סולארי</option>
+                <option value="consultation">ייעוץ והכוונה</option>
+                <option value="charging_stations">עמדות טעינה לרכבים</option>
+                <option value="maintenance">תחזוקה</option>
+                <option value="other">אחר</option>
+            </select>
+        </div>
+        <button id="submitButton" type="submit">שלח</button>
+    </form>
+
+    <script>
+        $(document).ready(function() {
+            const interestMapping = {
+                "energy_storage": "7TLt76XrAz",
+                "solar_facility": "FikOOYzOnw",
+                "consultation": "4eESdOynum",
+                "charging_stations": "Qju4Bi6y0E",
+                "maintenance": "ABhYTJXGlL",
+                "other": "UxNoCEmD44"
+            };
+
+            $('#contactForm').on('submit', function(e) {
+                e.preventDefault(); // Prevent default form submission
+
+                const name = $('#name').val();
+                const email = $('#email').val();
+                const selection = $('#selection').val();
+                const interestId = interestMapping[selection];
+
+                console.log("Form Data:", { name, email, selection, interestId });
+
+                const formData = {
+                    table: "LandingPageLeads",
+                    phone: "",
+                    email: email,
+                    account_Name: name,
+                    account_Email: email,
+                    account_PhoneNumber: "",
+                    account_LeadStatusId: "ZrOOwnHPiz",
+                    account_LeadSource: "jT2WnZiQck",
+                    account_IsAccount: false,
+                    account_Interest: interestId,
+                    table_Name: "ליד חדש",
+                    table_Interest: interestId,
+                    table_PhoneNumber: "",
+                    table_Email: email
+                };
+
+                // AJAX request to the custom endpoint
+                $.ajax({
+                    url: 'https://apps.simbla.com/functions/aaaaaaaibb7cfe13baa2b662b402c286d569aff1/web2table',
+                    method: "POST",
+                    data: JSON.stringify(formData),
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    headers: {
+                        'X-Parse-Application-Id': "aaaaaaaibb7cfe13baa2b662b402c286d569aff1"
+                    },
+                    success: function(data) {
+                        alert('הנתונים נשלחו בהצלחה!');
+                        console.log("Custom Endpoint Success:", data);
+                    },
+                    error: function(e) {
+                        console.error("Custom Endpoint Error:", e.responseJSON);
+                        alert('שליחת הנתונים נכשלה!');
+                    }
+                });
+
+                // Form data for Google Sheets
+                const googleFormData = new FormData();
+                googleFormData.append('entry.1137128776', name); // Actual field name for 'name'
+                googleFormData.append('entry.481823219', email); // Actual field name for 'email'
+                googleFormData.append('entry.606463502', selection); // Actual field name for 'selection'
+
+                // AJAX request to Google Form
+                fetch('https://docs.google.com/forms/d/e/1FAIpQLSdxGrwr6XGWI61V2hMNiJ8B8r5DNK8RlLJzkT-pPXY-4xXHvA/formResponse', {
+                    method: 'POST',
+                    body: googleFormData,
+                    mode: 'no-cors'
+                }).then(response => {
+                    console.log('Google Form submission success:', response);
+                }).catch(error => {
+                    console.error('Google Form submission error:', error);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
